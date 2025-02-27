@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Instagram</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="edit_picture_or_avatar">Edit picture or avatar</string>
+    <string name="name">Name</string>
+    <string name="dao_dinh_binh">Dao Dinh Binh</string>
+    <string name="share">Share</string>
+</resources>
