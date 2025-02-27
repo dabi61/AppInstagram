@@ -68,9 +68,9 @@ class DetailProfileFragment : Fragment() {
             when (it.status) {
                 DataStatus.Status.LOADING -> {}
                 DataStatus.Status.SUCCESS -> {
-                    if (it.data?.size != null)
+                    if (it.data?.data?.data != null)
                     {
-                        binding.tvNumPost.text = it.data.size.toString()
+                        binding.tvNumPost.text = it.data.data.totalPost.toString()
                     }
                 }
                 DataStatus.Status.ERROR -> {}

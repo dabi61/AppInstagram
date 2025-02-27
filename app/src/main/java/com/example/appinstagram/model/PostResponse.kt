@@ -15,3 +15,8 @@ data class PostRequest(
     val images: List<MultipartBody.Part?>,
     val content: RequestBody
 )
+
+data class PostDeleteResponse(
+    val status: Boolean,
+    val message: String,
+)

@@ -30,14 +30,13 @@ class MyPostFragment2 : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    ): View {
         binding = FragmentMyPost2Binding.inflate(inflater, container, false)
         adapterMyPost = DetailPostAdapter(requireActivity())
         setupRecyclerView()
         viewModel.myPost.observe(viewLifecycleOwner) {
             Log.d("MyPostFragment2", "onCreateView: ${it.data}")
-            adapterMyPost.submitList(it.data)
+            adapterMyPost.submitList(it.data?.data?.data)
         }
         binding.tvUsername.text = username
         binding.icBack.setOnClickListener{

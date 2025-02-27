@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.appinstagram.api.ApiService
 import com.example.appinstagram.model.ChangePassRequest
 import com.example.appinstagram.model.HomeData
+import com.example.appinstagram.model.PostDeleteResponse
 import com.example.appinstagram.model.PostRequest
 import com.example.appinstagram.model.PostResponse
 import com.example.appinstagram.model.Profile
@@ -16,10 +17,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 
 class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
-    override suspend fun getAllPosts() = flow{
+    override suspend fun getAllPosts() = flow {
         emit(DataStatus.loading())
         val result = apiService.getAllPosts()
-        when(result.code()){
+        when (result.code()) {
             200 -> emit(DataStatus.success(result.body()?.data?.data))
             400 -> emit(DataStatus.error(result.message()))
             500 -> emit(DataStatus.error(result.message()))
@@ -28,11 +29,11 @@ class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
         .catch { emit(DataStatus.error(it.message.toString())) }
         .flowOn(Dispatchers.IO)
 
-    override suspend fun getMyPost(username: String) = flow{
+    override suspend fun getMyPost(username: String) = flow {
         emit(DataStatus.loading())
         val result = apiService.getMyPost(username)
-        when(result.code()){
-            200 -> emit(DataStatus.success(result.body()?.data?.data))
+        when (result.code()) {
+            200 -> emit(DataStatus.success(result.body()))
             400 -> emit(DataStatus.error(result.message()))
             500 -> emit(DataStatus.error(result.message()))
         }
@@ -64,7 +65,7 @@ class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
         emit(DataStatus.error(e.message ?: "Unexpected error"))
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun changePass(request: ChangePassRequest) = flow{
+    override suspend fun changePass(request: ChangePassRequest) = flow {
         emit(DataStatus.loading())
         val result = apiService.changePass(
             request.userId,
@@ -83,7 +84,7 @@ class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
         emit(DataStatus.error(e.message ?: "Unexpected error"))
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun addPost(request: PostRequest) = flow{
+    override suspend fun addPost(request: PostRequest) = flow {
         emit(DataStatus.loading())
         val result = apiService.addPost(
             request.userId,
@@ -101,5 +102,25 @@ class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
     }.catch { e ->
         emit(DataStatus.error(e.message ?: "Unexpected error"))
     }.flowOn(Dispatchers.IO)
+
+    override suspend fun deletePost(userId: String, postId: String) = flow {
+        emit(DataStatus.loading())
+        val result = apiService.deletePost(
+            userId,
+            postId
+        )
+        if (result.isSuccessful) {
+            result.body()?.let {
+                emit(DataStatus.success(it)) // Thành công
+            } ?: emit(DataStatus.error("Empty response body"))
+        } else {
+            val errorMessage = result.errorBody()?.string() ?: "Unknown error"
+            emit(DataStatus.error("Error ${result.code()}: $errorMessage"))
+        }
+    }.catch { e ->
+        emit(DataStatus.error(e.message ?: "Unexpected error"))
+    }.flowOn(Dispatchers.IO)
+
+
 
 }

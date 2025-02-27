@@ -1,17 +1,15 @@
 package com.example.appinstagram.adapters
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.appinstagram.R
 import com.example.appinstagram.adapters.diffutil.MyPostDiffCallback
 import com.example.appinstagram.databinding.ItemMyPostBinding
 import com.example.appinstagram.model.HomeData
-import com.example.appinstagram.userInterface.PostClick
+import com.example.appinstagram.MyInterface.PostClick
 
 class MyPostAdapter(
     private val context: Context,

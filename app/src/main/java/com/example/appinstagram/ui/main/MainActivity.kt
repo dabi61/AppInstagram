@@ -67,7 +67,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun switchFragment(fragment: Fragment) {
         if (fragment == activeFragment) return
-
+    if(activeFragment == homeFragment) {
+        viewModel.getAllPosts()
+    }
         supportFragmentManager.beginTransaction()
             .hide(activeFragment!!)  // Ẩn fragment hiện tại
             .show(fragment)          // Hiển thị fragment mới

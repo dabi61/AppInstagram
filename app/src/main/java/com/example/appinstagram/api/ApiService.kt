@@ -4,6 +4,7 @@ import androidx.room.Update
 import com.example.appinstagram.model.LoginRequest
 import com.example.appinstagram.model.LoginResponse
 import com.example.appinstagram.model.PageResponse
+import com.example.appinstagram.model.PostDeleteResponse
 import com.example.appinstagram.model.PostResponse
 import com.example.appinstagram.model.Profile
 import com.example.appinstagram.model.ProfileResponse
@@ -16,6 +17,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
@@ -24,7 +26,7 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface ApiService {
-    @GET("/api/v1/list-post?sort=moi-nhat&page=1&perPage=100")
+    @GET("/api/v1/list-post?sort=moi-nhat&page=1&perPage=30")
     suspend fun getAllPosts() : Response<PageResponse>
 
     @GET("/api/v1/user/hihihi")
@@ -70,6 +72,12 @@ interface ApiService {
         @Part images: List<MultipartBody.Part?>,
         @Part("content") content: RequestBody?,
     ) : Response<PostResponse>
+
+    @DELETE("/api/v1/post")
+    suspend fun deletePost(
+        @Body userId: String,
+        @Body postId: String
+    ) : Response<PostDeleteResponse>
 
 //        @Query("sort") sort: String,
 //        @Query("page") page: Int,

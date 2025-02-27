@@ -13,7 +13,7 @@ import com.example.appinstagram.adapters.MyPostAdapter
 import com.example.appinstagram.databinding.FragmentMyPostBinding
 import com.example.appinstagram.model.HomeData
 import com.example.appinstagram.model.User
-import com.example.appinstagram.userInterface.PostClick
+import com.example.appinstagram.MyInterface.PostClick
 import com.example.appinstagram.utils.DataStatus
 import com.example.appinstagram.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
@@ -56,6 +56,10 @@ class MyPostFragment : Fragment() {
                     .addToBackStack(null)
                     .commit()
             }
+
+            override fun onMorePostClick(post: HomeData.Post) {
+                TODO("Not yet implemented")
+            }
         })
         setupRecyclerView(spanCount)
         lifecycleScope.launch {
@@ -69,7 +73,7 @@ class MyPostFragment : Fragment() {
                     }
                     DataStatus.Status.SUCCESS -> {
                         showProgressBar(false)
-                        adapterMyPost.submitList(it.data)
+                        adapterMyPost.submitList(it.data?.data?.data)
                     }
                     DataStatus.Status.ERROR -> {
                         showProgressBar(true)
