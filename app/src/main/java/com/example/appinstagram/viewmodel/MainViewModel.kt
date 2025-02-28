@@ -7,9 +7,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appinstagram.model.ChangePassRequest
 import com.example.appinstagram.model.HomeData
+import com.example.appinstagram.model.LikePostRequest
 import com.example.appinstagram.model.LoginRequest
 import com.example.appinstagram.model.Page
 import com.example.appinstagram.model.PageResponse
+import com.example.appinstagram.model.PostDeleteRequest
 import com.example.appinstagram.model.PostDeleteResponse
 import com.example.appinstagram.model.PostRequest
 import com.example.appinstagram.model.PostResponse
@@ -29,6 +31,7 @@ class  MainViewModel(private val repository: MainRepository) : ViewModel() {
     private val _pass = MutableLiveData<DataStatus<ProfileResponse>>()
     private val _deletePost = MutableLiveData<DataStatus<PostDeleteResponse>>()
     private val _addPost = MutableLiveData<DataStatus<PostResponse>>()
+    private val _likePost = MutableLiveData<DataStatus<PostDeleteResponse>>()
 
     val profile: LiveData<DataStatus<ProfileResponse>>
         get() = _profile
@@ -47,6 +50,9 @@ class  MainViewModel(private val repository: MainRepository) : ViewModel() {
 
     val deletePost: LiveData<DataStatus<PostDeleteResponse>>
         get() = _deletePost
+
+    val likePost: LiveData<DataStatus<PostDeleteResponse>>
+        get() = _likePost
 
     fun getAllPosts() = viewModelScope.launch {
             repository.getAllPosts().collect { dataStatus ->
@@ -76,9 +82,15 @@ class  MainViewModel(private val repository: MainRepository) : ViewModel() {
             _addPost.value = dataStatus
         }
     }
-    fun deletePost(userId: String, postId: String) = viewModelScope.launch {
-        repository.deletePost(userId, postId).collect{ dataStatus ->
+    fun deletePost(request: PostDeleteRequest) = viewModelScope.launch {
+        repository.deletePost(request).collect{ dataStatus ->
             _deletePost.value = dataStatus
+        }
+    }
+
+    fun likePost(request: LikePostRequest) = viewModelScope.launch {
+        repository.likePost(request).collect{ dataStatus ->
+            _likePost.value = dataStatus
         }
     }
 }

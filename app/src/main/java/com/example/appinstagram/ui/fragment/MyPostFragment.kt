@@ -15,6 +15,7 @@ import com.example.appinstagram.model.HomeData
 import com.example.appinstagram.model.User
 import com.example.appinstagram.MyInterface.PostClick
 import com.example.appinstagram.utils.DataStatus
+import com.example.appinstagram.utils.LikeValue
 import com.example.appinstagram.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -57,9 +58,17 @@ class MyPostFragment : Fragment() {
                     .commit()
             }
 
-            override fun onMorePostClick(post: HomeData.Post) {
+            override fun onMorePostClick(post: HomeData.Post, view: View) {
                 TODO("Not yet implemented")
             }
+
+            override fun onLikeClick(post: HomeData.Post, status: LikeValue) {
+                TODO("Not yet implemented")
+            }
+
+
+
+
         })
         setupRecyclerView(spanCount)
         lifecycleScope.launch {

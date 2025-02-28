@@ -17,7 +17,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 const val baseUrl = BASE_URL
 const val networkTimeOut = NETWORK_TIMEOUT
 
-fun provideGson() : Gson = GsonBuilder().setLenient().create()
+fun provideGson(): Gson = GsonBuilder()
+    .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+    .create();
+
+
 
 fun provideOkHttpClient() = if(BuildConfig.DEBUG){
     val logginInterceptor = HttpLoggingInterceptor()

@@ -4,6 +4,8 @@ import android.util.Log
 import com.example.appinstagram.api.ApiService
 import com.example.appinstagram.model.ChangePassRequest
 import com.example.appinstagram.model.HomeData
+import com.example.appinstagram.model.LikePostRequest
+import com.example.appinstagram.model.PostDeleteRequest
 import com.example.appinstagram.model.PostDeleteResponse
 import com.example.appinstagram.model.PostRequest
 import com.example.appinstagram.model.PostResponse
@@ -103,11 +105,10 @@ class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
         emit(DataStatus.error(e.message ?: "Unexpected error"))
     }.flowOn(Dispatchers.IO)
 
-    override suspend fun deletePost(userId: String, postId: String) = flow {
+    override suspend fun deletePost(request: PostDeleteRequest) = flow {
         emit(DataStatus.loading())
         val result = apiService.deletePost(
-            userId,
-            postId
+            request
         )
         if (result.isSuccessful) {
             result.body()?.let {
@@ -121,6 +122,22 @@ class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
         emit(DataStatus.error(e.message ?: "Unexpected error"))
     }.flowOn(Dispatchers.IO)
 
+    override suspend fun likePost(request: LikePostRequest) = flow {
+        emit(DataStatus.loading())
+        val result = apiService.likePost(
+            request
+        )
+        if (result.isSuccessful) {
+            result.body()?.let {
+                emit(DataStatus.success(it)) // Thành công
+            } ?: emit(DataStatus.error("Empty response body"))
+        } else {
+            val errorMessage = result.errorBody()?.string() ?: "Unknown error"
+            emit(DataStatus.error("Error ${result.code()}: $errorMessage"))
+        }
+    }.catch { e ->
+        emit(DataStatus.error(e.message ?: "Unexpected error"))
+    }.flowOn(Dispatchers.IO)
 
 
 }

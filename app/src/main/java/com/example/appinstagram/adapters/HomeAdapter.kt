@@ -4,7 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +19,7 @@ import com.example.appinstagram.databinding.ItemPostBinding
 import com.example.appinstagram.databinding.ListItemUserBinding
 import com.example.appinstagram.model.HomeData
 import com.example.appinstagram.model.User
+import com.example.appinstagram.utils.LikeValue
 import com.example.instagram.userInterface.UserClick
 
 class HomeAdapter(
@@ -48,7 +52,29 @@ class HomeAdapter(
         RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
         fun bindPostView(item: HomeData.Post) {
-            Log.d("HomeAdapter", "bindPostView: $item")
+            val sharePref = context.getSharedPreferences("MyPrefs", MODE_PRIVATE)
+            val username = sharePref.getString("username", "")
+            if (!item.author.username.equals(username)) {
+                binding.ivMore.visibility = View.GONE
+            }
+            var status : LikeValue = LikeValue.UNLIKE
+            item.listLike.forEach{
+                Log.d("Hello", "aaaa: ${it.username}, ${username}")
+                status = if (it.username == username) {
+                    LikeValue.LIKE
+                } else {
+                    LikeValue.UNLIKE
+                }
+            }
+            if (status == LikeValue.LIKE) {
+                binding.ivLove.setImageResource(R.drawable.ic_heart_full)
+            } else {
+                binding.ivLove.setImageResource(R.drawable.ic_heart)
+            }
+            binding.ivLove.setOnClickListener {
+                listenerPost.onLikeClick(item, status)
+            }
+
             with(binding) {
                 tvUsername.text = item.author.username
                 tvContent.text = item.content
@@ -68,13 +94,13 @@ class HomeAdapter(
                     listener.onAvatarClick(item.author)
                 }
                 ivMore.setOnClickListener {
-                    listenerPost.onMorePostClick(item)
-                }
-                ivLove.setOnClickListener {
-//                    listenerPost.onLoveClick(item)
+                    listenerPost.onMorePostClick(item, it)
                 }
 
-                    tvUsername.setOnClickListener {
+
+
+
+                tvUsername.setOnClickListener {
                         listener.onAvatarClick(item.author)
                     }
                 }

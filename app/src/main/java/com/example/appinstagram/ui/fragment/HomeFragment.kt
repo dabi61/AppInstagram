@@ -1,5 +1,6 @@
 package com.example.appinstagram.ui.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
@@ -19,8 +21,11 @@ import com.example.appinstagram.R
 import com.example.appinstagram.adapters.HomeAdapter
 import com.example.appinstagram.databinding.FragmentHomeBinding
 import com.example.appinstagram.model.HomeData
+import com.example.appinstagram.model.LikePostRequest
+import com.example.appinstagram.model.PostDeleteRequest
 import com.example.appinstagram.model.User
 import com.example.appinstagram.utils.DataStatus
+import com.example.appinstagram.utils.LikeValue
 import com.example.appinstagram.viewmodel.MainViewModel
 import com.example.instagram.userInterface.UserClick
 
@@ -38,7 +43,7 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setFragmentResultListener("bottom_sheet_dismiss") { _, bundle ->
+        setFragmentResultListener("DetailFragmentBack") { _, bundle ->
             val shouldReload = bundle.getBoolean("reload", false)
             if (shouldReload) {
                 viewModel.getAllPosts() // Gọi lại API hoặc cập nhật dữ liệu
@@ -73,8 +78,8 @@ class HomeFragment : Fragment() {
                 TODO("Not yet implemented")
             }
 
-            override fun onMorePostClick(post: HomeData.Post) {
-                val popup = PopupMenu(requireContext(), view)
+            override fun onMorePostClick(post: HomeData.Post, view: View) {
+                val popup = PopupMenu(context, view)
                 popup.menuInflater.inflate(R.menu.more_menu, popup.menu)
 
                 popup.setOnMenuItemClickListener { item ->
@@ -86,10 +91,15 @@ class HomeFragment : Fragment() {
                         R.id.action_delete -> {
                             val sharePref = requireContext().getSharedPreferences("MyPrefs", MODE_PRIVATE)
                             val _id = sharePref.getString("_id", "")
-                            viewModel.deletePost(post._id, _id.toString())
+                            val request = PostDeleteRequest(_id.toString(), post._id)
+//                            Log.d("HomeFragment", "Dữ liệu mới nhận được: ${_id}")
+//                            Log.d("HomeFragment", "Dữ liệu mới nhận được: ${post._id}")
+                            viewModel.deletePost(request)
                             viewModel.deletePost.observe(viewLifecycleOwner) {
-                                Log.d("HomeFragment", "Dữ liệu mới nhận được: ${it}")
-                                Toast.makeText(context, "${it.data?.message}", Toast.LENGTH_SHORT).show()
+                                if (it.data?.status == true) {
+//                                    Toast.makeText(requireContext(), "Xóa thành công", Toast.LENGTH_SHORT).show()
+                                    viewModel.getAllPosts()
+                                }
                             }
                             true
                         }
@@ -98,6 +108,32 @@ class HomeFragment : Fragment() {
                 }
                 popup.show()
             }
+
+            override fun onLikeClick(post: HomeData.Post, status: LikeValue) {
+                val sharePref = requireContext().getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                val _id = sharePref.getString("_id", "")
+                val pushStatus : LikeValue
+                Log.d("HomeFragment", "Dữ liệu mới nhận được: ${status.value}")
+                if (status == LikeValue.LIKE)
+                {
+                    post.totalLike = post.totalLike - 1
+                    pushStatus = LikeValue.UNLIKE
+                }
+                else
+                {
+                    post.totalLike = post.totalLike + 1
+                    pushStatus = LikeValue.LIKE
+
+                }
+                val request = LikePostRequest(_id.toString(), post._id, pushStatus.value)
+                viewModel.likePost(request)
+                viewModel.likePost.observe(viewLifecycleOwner) {
+                    Toast.makeText(context, "${it.data?.message}", Toast.LENGTH_SHORT).show()
+                    viewModel.getAllPosts()
+                }
+            }
+
+
 
         })
         setupRecyclerView()
@@ -115,6 +151,7 @@ class HomeFragment : Fragment() {
                 DataStatus.Status.ERROR -> {
                     showProgressBar(false)
                     Toast.makeText(requireContext(), "Có lỗi xảy ra!", Toast.LENGTH_SHORT).show()
+
                 }
             }
         }

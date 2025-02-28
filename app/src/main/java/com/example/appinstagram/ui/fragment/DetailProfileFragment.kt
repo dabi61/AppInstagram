@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.appinstagram.R
@@ -53,6 +55,7 @@ class DetailProfileFragment : Fragment() {
         profileViewPagerAdapter = ProfileViewPagerAdapter(requireActivity().supportFragmentManager, lifecycle, profile!!)
         binding.icBack.setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
+            setFragmentResult("DetailFragmentBack", bundleOf("reload" to true))
         }
         val icons : List<Int> = profileViewPagerAdapter.icons
         binding.vpImage.adapter = profileViewPagerAdapter

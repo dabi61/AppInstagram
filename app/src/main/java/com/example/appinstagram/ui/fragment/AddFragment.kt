@@ -38,7 +38,7 @@ class AddFragment : BottomSheetDialogFragment() {
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        setFragmentResult("bottom_sheet_dismiss", bundleOf("reload" to true))
+//        setFragmentResult("bottom_sheet_dismiss", bundleOf("reload" to true))
     }
 
     private val pickMultipleMedia = registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->

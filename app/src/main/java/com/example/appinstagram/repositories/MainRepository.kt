@@ -2,7 +2,9 @@ package com.example.appinstagram.repositories
 
 import com.example.appinstagram.model.ChangePassRequest
 import com.example.appinstagram.model.HomeData
+import com.example.appinstagram.model.LikePostRequest
 import com.example.appinstagram.model.PageResponse
+import com.example.appinstagram.model.PostDeleteRequest
 import com.example.appinstagram.model.PostDeleteResponse
 import com.example.appinstagram.model.PostRequest
 import com.example.appinstagram.model.PostResponse
@@ -17,5 +19,7 @@ interface MainRepository {
     suspend fun updateProfile(request: UpdateProfileRequest) : Flow<DataStatus<ProfileResponse>>
     suspend fun changePass(request: ChangePassRequest) : Flow<DataStatus<ProfileResponse>>
     suspend fun addPost(request: PostRequest) : Flow<DataStatus<PostResponse>>
-    suspend fun deletePost(userId: String, postId: String) : Flow<DataStatus<PostDeleteResponse>>
+    suspend fun deletePost(request: PostDeleteRequest) : Flow<DataStatus<PostDeleteResponse>>
+    suspend fun likePost(request: LikePostRequest) : Flow<DataStatus<PostDeleteResponse>>
+
 }

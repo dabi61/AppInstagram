@@ -10,11 +10,11 @@ sealed class HomeData {
     data class Post(val _id : String,
                     val author: User,
                     val images : List<String>,
-                    val content : String,
-                    val createAt: Date,
-                    val updateAt: Date,
-                    val listLike : Any,
-                    val totalLike: Int, ) : HomeData()
+                    val content : String?,
+                    val createAt: String?,
+                    val updateAt: String?,
+                    val listLike : List<User>,
+                    var totalLike: Int, ) : HomeData()
 
 }
 
