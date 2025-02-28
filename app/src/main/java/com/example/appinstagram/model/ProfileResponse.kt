@@ -2,6 +2,6 @@ package com.example.appinstagram.model
 
 data class ProfileResponse (
     val statusI: Boolean,
-    val data: Profile,
+    var data: Profile,
     val message: String,
 )

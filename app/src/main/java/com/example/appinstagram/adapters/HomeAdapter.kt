@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -21,9 +22,14 @@ import com.example.appinstagram.model.HomeData
 import com.example.appinstagram.model.User
 import com.example.appinstagram.utils.LikeValue
 import com.example.instagram.userInterface.UserClick
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class HomeAdapter(
     private val context: Context,
+    private val username: String?,
     private val listener: UserClick,
     private val listenerPost: PostClick
 ) : ListAdapter<HomeData, RecyclerView.ViewHolder>(HomeDiffCallback) {
@@ -39,7 +45,7 @@ class HomeAdapter(
     inner class UserViewHolder(val binding: ListItemUserBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bindUserView(item: HomeData.UserList) {
-            val adapterUser = UserAdapter(users!!, context, listener)
+            val adapterUser = UserAdapter(users!!, username, context, listener)
             binding.rvUser.apply {
                 adapter = adapterUser
                 layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -54,12 +60,17 @@ class HomeAdapter(
         fun bindPostView(item: HomeData.Post) {
             val sharePref = context.getSharedPreferences("MyPrefs", MODE_PRIVATE)
             val username = sharePref.getString("username", "")
+
+
+            //Hiển thị edit post của mình
             if (!item.author.username.equals(username)) {
                 binding.ivMore.visibility = View.GONE
             }
+
+            //Kiểm tra trong list Like có mình không
+            var like = item.totalLike
             var status : LikeValue = LikeValue.UNLIKE
             item.listLike.forEach{
-                Log.d("Hello", "aaaa: ${it.username}, ${username}")
                 status = if (it.username == username) {
                     LikeValue.LIKE
                 } else {
@@ -71,7 +82,24 @@ class HomeAdapter(
             } else {
                 binding.ivLove.setImageResource(R.drawable.ic_heart)
             }
+
+            binding.tvTime.text = formatDate(item.createdAt.toString())
             binding.ivLove.setOnClickListener {
+                if (status == LikeValue.LIKE)
+                {
+                    like--
+                    binding.tvNumLove.text = (like).toString()
+                    status = LikeValue.UNLIKE
+                    binding.ivLove.setImageResource(R.drawable.ic_heart)
+                }
+                else if (status == LikeValue.UNLIKE)
+                {
+                    like++
+                    binding.tvNumLove.text = (like).toString()
+                    status = LikeValue.LIKE
+                    binding.ivLove.setImageResource(R.drawable.ic_heart_full)
+
+                }
                 listenerPost.onLikeClick(item, status)
             }
 
@@ -96,13 +124,12 @@ class HomeAdapter(
                 ivMore.setOnClickListener {
                     listenerPost.onMorePostClick(item, it)
                 }
-
-
-
-
                 tvUsername.setOnClickListener {
-                        listener.onAvatarClick(item.author)
-                    }
+                    listener.onAvatarClick(item.author)
+                }
+                tvNumLove.setOnClickListener {
+                    listenerPost.onTvLikeClick(item)
+                }
                 }
             }
         }
@@ -125,13 +152,11 @@ class HomeAdapter(
                     )
                     UserViewHolder(binding)
                 }
-
                 POST_ITEM -> {
                     val binding =
                         ItemPostBinding.inflate(LayoutInflater.from(parent.context), parent, false)
                     PostViewHolder(binding)
                 }
-
                 else -> throw IllegalArgumentException("Invalid view type")
             }
         }
@@ -139,13 +164,24 @@ class HomeAdapter(
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             Log.d("HomeAdapter", "Binding item at position: $position, Data: ${users}")
             if (position == 0) {
-                val item = HomeData.UserList(users!!)
-                (holder as UserViewHolder).bindUserView(item)
+                val item = users?.let { HomeData.UserList(it) }
+                if (item != null) {
+                    (holder as UserViewHolder).bindUserView(item)
+                }
             } else {
                 val item = getItem(position)
                 (holder as PostViewHolder).bindPostView(item as HomeData.Post)
             }
         }
+    fun formatDate(isoDate: String): String {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        inputFormat.timeZone = TimeZone.getTimeZone("UTC") // Định dạng ban đầu là UTC
+
+        val outputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) // Định dạng mong muốn
+        val date: Date = inputFormat.parse(isoDate) ?: return "Invalid date"
+
+        return outputFormat.format(date)
+    }
     }
 
 

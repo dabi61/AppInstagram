@@ -7,15 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.appinstagram.R
-import com.example.appinstagram.adapters.MyPostAdapter
 import com.example.appinstagram.databinding.FragmentMyPostBinding
 import com.example.appinstagram.model.HomeData
 import com.example.appinstagram.model.User
 import com.example.appinstagram.MyInterface.PostClick
+import com.example.appinstagram.adapters.MyProfilePostAdapter
 import com.example.appinstagram.utils.DataStatus
 import com.example.appinstagram.utils.LikeValue
 import com.example.appinstagram.viewmodel.MainViewModel
@@ -24,29 +24,29 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-private const val USER = "user"
-class MyPostFragment : Fragment() {
-    private var user: User? = null
+
+class ProfilePostFragment : Fragment() {
     private val viewModel: MainViewModel by activityViewModel()
-    private lateinit var adapterMyPost: MyPostAdapter
+    private lateinit var adapterMyPost: MyProfilePostAdapter
     private lateinit var binding: FragmentMyPostBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            user = it.getParcelable(USER)
-        }
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val profile = viewModel.profile.value?.data?.data
+        Log.d("profile", profile.toString())
+        val user = User(profile?.username, profile?.name, profile?.gender, profile?.avatar, profile?.address, profile?.introduce )
         binding = FragmentMyPostBinding.inflate(inflater, container, false)
         val displayMetrics = resources.displayMetrics
         val screenWidth = displayMetrics.widthPixels
         val spanCount = 3
-        adapterMyPost = MyPostAdapter(requireActivity() ,screenWidth, spanCount, object :
+        adapterMyPost = MyProfilePostAdapter(requireActivity() ,screenWidth, spanCount, object :
             PostClick {
             override fun onPostClick(post: HomeData.Post) {
                 requireActivity().supportFragmentManager.beginTransaction()
@@ -56,7 +56,7 @@ class MyPostFragment : Fragment() {
                         R.anim.slide_out_right,
                         R.anim.slide_out_right,
                     )
-                    .add(R.id.fl_main, MyPostFragment2())
+                    .add(R.id.fl_profile, MyProfilePostFragment2())
                     .addToBackStack(null)
                     .commit()
             }
@@ -72,13 +72,12 @@ class MyPostFragment : Fragment() {
             override fun onTvLikeClick(post: HomeData.Post) {
                 val bottomSheet = ListLoveFragment(post)
                 bottomSheet.show(childFragmentManager, "UserBottomSheet")
-
             }
         })
         setupRecyclerView(spanCount)
         lifecycleScope.launch {
-            viewModel.getMyPost(user?.username.toString())
-            viewModel.myPost.observe(viewLifecycleOwner) {
+            viewModel.getMyProfile(user.username.toString())
+            viewModel.profilePost.observe(viewLifecycleOwner) {
                 Toast.makeText(context, "${it.status}", Toast.LENGTH_SHORT).show()
                 when (it.status) {
                     DataStatus.Status.LOADING -> {
@@ -98,16 +97,6 @@ class MyPostFragment : Fragment() {
 
         }
         return binding.root
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(user: User) =
-            MyPostFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(USER, user)
-                }
-            }
     }
     fun setupRecyclerView(spanCount: Int){
         binding.rvMyPost.apply {

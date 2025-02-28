@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 interface MainRepository {
     suspend fun getAllPosts() : Flow<DataStatus<List<HomeData.Post>>>
     suspend fun getMyPost(username : String) : Flow<DataStatus<PageResponse>>
+    suspend fun getMyProfilePost(username : String) : Flow<DataStatus<PageResponse>>
     suspend fun updateProfile(request: UpdateProfileRequest) : Flow<DataStatus<ProfileResponse>>
     suspend fun changePass(request: ChangePassRequest) : Flow<DataStatus<ProfileResponse>>
     suspend fun addPost(request: PostRequest) : Flow<DataStatus<PostResponse>>

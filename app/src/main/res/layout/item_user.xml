@@ -28,5 +28,15 @@
         android:layout_marginBottom="10dp"
         android:textColor="@color/white"
         android:text="Yout story"/>
+        <ImageView
+            android:id="@+id/iv_add_story"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintEnd_toEndOf="@id/iv_image"
+            app:layout_constraintBottom_toBottomOf="@id/iv_image"
+            android:src="@drawable/vector_with_circle_bg"
+            android:layout_marginBottom="-2dp"
+            android:layout_marginEnd="-3dp"
+            android:visibility="gone"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

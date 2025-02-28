@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
@@ -39,27 +40,33 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("HomeFragment", "cre: ")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("HomeFragment", "onPause: ")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setFragmentResultListener("DetailFragmentBack") { _, bundle ->
-            val shouldReload = bundle.getBoolean("reload", false)
-            if (shouldReload) {
-                viewModel.getAllPosts() // Gọi lại API hoặc cập nhật dữ liệu
-            }
-        }
+        viewModel.getAllPosts()
 
     }
+
     override fun onResume() {
         super.onResume()
+        Log.d("HomeFragment", "re: ")
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
-        adapterHome = HomeAdapter(requireActivity(),object : UserClick {
+        val username = viewModel.profile.value?.data?.data?.username
+        val profile = viewModel.profile.value?.data?.data
+        adapterHome = HomeAdapter(requireActivity(), username, object : UserClick {
             override fun onAvatarClick(user: User) {
                 val detailProfileFragment = DetailProfileFragment.newInstance(user)
                 requireActivity().supportFragmentManager.beginTransaction()
@@ -75,7 +82,7 @@ class HomeFragment : Fragment() {
             }
         }, object : PostClick {
             override fun onPostClick(post: HomeData.Post) {
-                TODO("Not yet implemented")
+
             }
 
             override fun onMorePostClick(post: HomeData.Post, view: View) {
@@ -88,8 +95,10 @@ class HomeFragment : Fragment() {
                             Toast.makeText(context, "Chỉnh sửa", Toast.LENGTH_SHORT).show()
                             true
                         }
+
                         R.id.action_delete -> {
-                            val sharePref = requireContext().getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                            val sharePref =
+                                requireContext().getSharedPreferences("MyPrefs", MODE_PRIVATE)
                             val _id = sharePref.getString("_id", "")
                             val request = PostDeleteRequest(_id.toString(), post._id)
 //                            Log.d("HomeFragment", "Dữ liệu mới nhận được: ${_id}")
@@ -103,51 +112,80 @@ class HomeFragment : Fragment() {
                             }
                             true
                         }
+
                         else -> false
                     }
                 }
                 popup.show()
             }
 
+            var liked: Boolean? = null
             override fun onLikeClick(post: HomeData.Post, status: LikeValue) {
                 val sharePref = requireContext().getSharedPreferences("MyPrefs", MODE_PRIVATE)
                 val _id = sharePref.getString("_id", "")
-                val pushStatus : LikeValue
                 Log.d("HomeFragment", "Dữ liệu mới nhận được: ${status.value}")
-                if (status == LikeValue.LIKE)
-                {
-                    post.totalLike = post.totalLike - 1
-                    pushStatus = LikeValue.UNLIKE
+                val request = LikePostRequest(_id.toString(), post._id, status.value)
+                if (status == LikeValue.LIKE) {
+                    liked = true
+                } else {
+                    liked = false
                 }
-                else
-                {
-                    post.totalLike = post.totalLike + 1
-                    pushStatus = LikeValue.LIKE
-
-                }
-                val request = LikePostRequest(_id.toString(), post._id, pushStatus.value)
                 viewModel.likePost(request)
                 viewModel.likePost.observe(viewLifecycleOwner) {
-                    Toast.makeText(context, "${it.data?.message}", Toast.LENGTH_SHORT).show()
-                    viewModel.getAllPosts()
+                    if (it.data?.status == true) {
+                        Toast.makeText(context, "${it.data.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
+
             }
 
+            override fun onTvLikeClick(post: HomeData.Post) {
+                var newListLike: MutableList<User> = mutableListOf()
+                val myUser: User = User(
+                    profile?.username,
+                    profile?.name,
+                    profile?.gender,
+                    profile?.avatar,
+                    profile?.address,
+                    profile?.introduce
+                )
+                newListLike = post.listLike.toMutableList()
+
+                if (liked == true && !newListLike.contains(myUser)) {
+                    newListLike.add(myUser)
+                } else if (liked == false && newListLike.contains(myUser) && newListLike.size == post.totalLike) {
+                    newListLike.remove(myUser)
+                }
+                val newPost: HomeData.Post = HomeData.Post(
+                    post._id,
+                    post.author,
+                    post.images,
+                    post.content,
+                    post.createdAt,
+                    post.updatedAt,
+                    newListLike,
+                    post.totalLike
+                )
+                val bottomSheet = ListLoveFragment(newPost)
+                bottomSheet.show(childFragmentManager, "UserBottomSheet")
+            }
 
 
         })
         setupRecyclerView()
-        viewModel.getAllPosts()
         viewModel.posts.observe(viewLifecycleOwner) {
             Log.d("HomeFragment", "Dữ liệu mới nhận được: ${it.data}")
+            val data: MutableList<HomeData> = mutableListOf()
+            data.add(HomeData.Null())
+            it.data?.let { it1 -> data.addAll(it1) }
             when (it.status) {
                 DataStatus.Status.LOADING -> showProgressBar(true)
                 DataStatus.Status.SUCCESS -> {
                     showProgressBar(false)
-                    adapterHome.submitList(it.data) {
-                        Log.d("HomeFragment", "Danh sách bài viết đã cập nhật")
-                    }
+                    data.addAll(data)
+                    adapterHome.submitList(data)
                 }
+
                 DataStatus.Status.ERROR -> {
                     showProgressBar(false)
                     Toast.makeText(requireContext(), "Có lỗi xảy ra!", Toast.LENGTH_SHORT).show()
@@ -159,7 +197,7 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    fun setupRecyclerView(){
+    fun setupRecyclerView() {
         binding.rvPost.apply {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
@@ -167,7 +205,8 @@ class HomeFragment : Fragment() {
             adapter = adapterHome
         }
     }
-    private fun showProgressBar(isShown : Boolean) {
+
+    private fun showProgressBar(isShown: Boolean) {
         binding.apply {
             if (isShown) {
                 pLoading.visibility = View.VISIBLE

@@ -35,6 +35,9 @@ interface ApiService {
     @GET("https://insta.hoibai.net/api/v1/list-post/{username}")
     suspend fun getMyPost(@Path("username") username: String) : Response<PageResponse>
 
+    @GET("https://insta.hoibai.net/api/v1/list-post/{username}")
+    suspend fun getMyProfilePost(@Path("username") username: String) : Response<PageResponse>
+
     @POST("/api/v1/login")
     suspend fun login(
         @Body request: LoginRequest

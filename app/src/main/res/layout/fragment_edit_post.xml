@@ -6,14 +6,65 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white">
+        android:background="@color/black">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_heading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="20dp">
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginStart="10dp"
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:text="Edit Info"/>
+            <TextView
+                android:id="@+id/tv_done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="10dp"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"
+                android:text="Done"/>
 
+
+
+            <TextView
+                android:id="@+id/ic_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="10dp"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"
+                android:text="Cancel"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_heading_post"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/black"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_heading"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             tools:layout_editor_absoluteY="60dp">
@@ -36,7 +87,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
-                app:layout_constraintEnd_toStartOf="@id/bt_follow"
                 android:text="_dabi.61_"
                 android:textColor="@color/white"
                 android:textSize="16sp"
@@ -56,30 +106,15 @@
                 app:layout_constraintTop_toBottomOf="@id/tv_username" />
 
             <ImageView
-                android:id="@+id/iv_more"
+                android:id="@+id/iv_image"
                 android:layout_width="30dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="10dp"
-                android:src="@drawable/ic_more"
+                android:src="@drawable/ic_image"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/bt_follow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:background="@drawable/round_buttom"
-                android:clickable="true"
-                android:focusable="true"
-                android:text="Follow"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/iv_more"
-                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -128,65 +163,18 @@
             android:paddingTop="10dp"
             android:background="@color/black"
             >
-            <ImageView
-                android:id="@+id/iv_love"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-
-                android:layout_margin="10dp"
-                android:src="@drawable/ic_heart"/>
-
-            <TextView
-                android:id="@+id/tv_num_love"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toEndOf="@id/iv_love"
-                app:layout_constraintTop_toTopOf="@id/iv_love"
-                app:layout_constraintBottom_toBottomOf="@id/iv_love"
-                android:layout_marginStart="10dp"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:text="1.651"/>
-
-            <ImageView
-                android:id="@+id/iv_bookmark"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-
-                android:layout_margin="10dp"
-                android:src="@drawable/ic_bookmark"/>
 
             <TextView
                 android:id="@+id/tv_content"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/iv_love"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 android:layout_margin="10dp"
+                android:text="Thế giới sẽ nhìn bạn theo cách bạn nhìn nhận chính mình.."
                 android:textColor="@color/white"
                 android:textSize="16sp"
-                android:text="Thế giới sẽ nhìn bạn theo cách bạn nhìn nhận chính mình.."/>
-
-
-            <TextView
-                android:id="@+id/tv_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/tv_content"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_margin="10dp"
-                android:textColor="@color/gray_light"
-                android:textSize="16sp"
-                android:text="3 days ago"/>
-
-
+                app:layout_constraintTop_toTopOf="parent"/>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

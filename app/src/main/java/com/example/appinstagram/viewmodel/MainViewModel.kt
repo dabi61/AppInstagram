@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 class  MainViewModel(private val repository: MainRepository) : ViewModel() {
     private val _posts = MutableLiveData<DataStatus<List<HomeData.Post>>>()
     private val _myPost = MutableLiveData<DataStatus<PageResponse>>()
+    private val _profilePost = MutableLiveData<DataStatus<PageResponse>>()
     private val _profile = MutableLiveData<DataStatus<ProfileResponse>>()
     private val _pass = MutableLiveData<DataStatus<ProfileResponse>>()
     private val _deletePost = MutableLiveData<DataStatus<PostDeleteResponse>>()
@@ -42,6 +43,9 @@ class  MainViewModel(private val repository: MainRepository) : ViewModel() {
     val myPost: LiveData<DataStatus<PageResponse>>
         get() = _myPost
 
+    val profilePost: LiveData<DataStatus<PageResponse>>
+        get() = _profilePost
+
     val posts: LiveData<DataStatus<List<HomeData.Post>>>
         get() = _posts
 
@@ -54,6 +58,9 @@ class  MainViewModel(private val repository: MainRepository) : ViewModel() {
     val likePost: LiveData<DataStatus<PostDeleteResponse>>
         get() = _likePost
 
+    fun setProfileData(newProfile: Profile) {
+        _profile.value = DataStatus<ProfileResponse>(DataStatus.Status.SUCCESS, ProfileResponse(true, newProfile, ""), "")
+    }
     fun getAllPosts() = viewModelScope.launch {
             repository.getAllPosts().collect { dataStatus ->
                 _posts.value = dataStatus
@@ -63,6 +70,11 @@ class  MainViewModel(private val repository: MainRepository) : ViewModel() {
     fun getMyPost(username : String) = viewModelScope.launch {
         repository.getMyPost(username).collect{ dataStatus ->
             _myPost.value = dataStatus
+        }
+    }
+    fun getMyProfile(username : String) = viewModelScope.launch {
+        repository.getMyProfilePost(username).collect{ dataStatus ->
+            _profilePost.value = dataStatus
         }
     }
 

@@ -1,0 +1,13 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Nền tròn -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#000000"/> <!-- Màu vàng -->
+            <size android:width="48dp" android:height="48dp"/>
+        </shape>
+    </item>
+
+    <!-- Icon vector -->
+    <item android:drawable="@drawable/ic_add_story_full"/>
+</layer-list>

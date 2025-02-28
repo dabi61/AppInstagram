@@ -31,9 +31,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         val profile = intent.getParcelableExtra<Profile>("profile") as Profile
+        viewModel.setProfileData(profile)
+        Log.d("profile", viewModel.profile.value?.data?.data.toString())
         homeFragment = HomeFragment()
         searchFragment = SearchFragment()
-        profileFragment = ProfileFragment.newInstance(profile)
+        profileFragment = ProfileFragment()
         activeFragment = homeFragment
 
 
@@ -48,7 +50,10 @@ class MainActivity : AppCompatActivity() {
         binding.bnvMenu.setOnItemSelectedListener { item ->
             // Xử lý chuyển Fragment
             when (item.itemId) {
-                R.id.home_fragment -> switchFragment(homeFragment)
+                R.id.home_fragment -> {
+                    viewModel.getAllPosts()
+                    switchFragment(homeFragment)
+                }
                 R.id.search_fragment -> switchFragment(searchFragment)
                 R.id.add_fragment -> {
                     if (supportFragmentManager.findFragmentByTag("AddFragment") == null) {
@@ -58,7 +63,10 @@ class MainActivity : AppCompatActivity() {
                         Log.d("Fragment", "AddFragment đã hiển thị, không cần hiển thị lại")
                     }
                 }
-                R.id.profile_fragment -> switchFragment(profileFragment)
+                R.id.profile_fragment -> {
+                    viewModel.getMyProfile(viewModel.profile.value?.data?.data?.username.toString())
+                    switchFragment(profileFragment)
+                }
                 else -> switchFragment(homeFragment)
             }
             true
@@ -70,6 +78,7 @@ class MainActivity : AppCompatActivity() {
     if(activeFragment == homeFragment) {
         viewModel.getAllPosts()
     }
+
         supportFragmentManager.beginTransaction()
             .hide(activeFragment!!)  // Ẩn fragment hiện tại
             .show(fragment)          // Hiển thị fragment mới

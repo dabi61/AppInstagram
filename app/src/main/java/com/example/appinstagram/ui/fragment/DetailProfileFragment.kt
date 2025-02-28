@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.appinstagram.R
@@ -21,6 +22,7 @@ import com.example.appinstagram.viewmodel.MainViewModel
 
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 // TODO: Rename parameter arguments, choose names that match
@@ -35,7 +37,7 @@ private const val ARG_PARAM2 = "param2"
  */
 class DetailProfileFragment : Fragment() {
     private var profile: User? = null
-    private val viewModel: MainViewModel by viewModel()
+    private val viewModel: MainViewModel by activityViewModel()
     private lateinit var profileViewPagerAdapter: ProfileViewPagerAdapter
 
     private lateinit var binding: FragmentDetailProfileBinding
@@ -47,6 +49,9 @@ class DetailProfileFragment : Fragment() {
         }
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,8 +60,11 @@ class DetailProfileFragment : Fragment() {
         profileViewPagerAdapter = ProfileViewPagerAdapter(requireActivity().supportFragmentManager, lifecycle, profile!!)
         binding.icBack.setOnClickListener {
             requireActivity().supportFragmentManager.popBackStack()
+            viewModel.getAllPosts()
             setFragmentResult("DetailFragmentBack", bundleOf("reload" to true))
+            Toast.makeText(context, "da reload", Toast.LENGTH_SHORT).show()
         }
+
         val icons : List<Int> = profileViewPagerAdapter.icons
         binding.vpImage.adapter = profileViewPagerAdapter
         TabLayoutMediator(binding.tlImage, binding.vpImage) { tab, position ->

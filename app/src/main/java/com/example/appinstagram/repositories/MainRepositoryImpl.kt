@@ -5,6 +5,7 @@ import com.example.appinstagram.api.ApiService
 import com.example.appinstagram.model.ChangePassRequest
 import com.example.appinstagram.model.HomeData
 import com.example.appinstagram.model.LikePostRequest
+import com.example.appinstagram.model.PageResponse
 import com.example.appinstagram.model.PostDeleteRequest
 import com.example.appinstagram.model.PostDeleteResponse
 import com.example.appinstagram.model.PostRequest
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+
 
 class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
     override suspend fun getAllPosts() = flow {
@@ -42,6 +44,21 @@ class MainRepositoryImpl(private val apiService: ApiService) : MainRepository {
     }
         .catch { emit(DataStatus.error(it.message.toString())) }
         .flowOn(Dispatchers.IO)
+
+    override suspend fun getMyProfilePost(username: String) = flow {
+        emit(DataStatus.loading())
+        val result = apiService.getMyProfilePost(username)
+        when (result.code()) {
+            200 -> emit(DataStatus.success(result.body()))
+            400 -> emit(DataStatus.error(result.message()))
+            500 -> emit(DataStatus.error(result.message()))
+        }
+    }
+    .catch { emit(DataStatus.error(it.message.toString())) }
+    .flowOn(Dispatchers.IO)
+
+
+
 
     override suspend fun updateProfile(request: UpdateProfileRequest) = flow {
         emit(DataStatus.loading()) // Loading state

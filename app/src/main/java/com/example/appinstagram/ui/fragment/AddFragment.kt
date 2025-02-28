@@ -83,6 +83,7 @@ class AddFragment : BottomSheetDialogFragment() {
             if (imageParts.isNotEmpty()) {
                 val sharePref = requireContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
                 val userId = sharePref.getString("_id", "") ?: ""
+                val username = sharePref.getString("username", "") ?: ""
 
                 val request = PostRequest(
                     userId.toRequestBody(),
@@ -95,7 +96,9 @@ class AddFragment : BottomSheetDialogFragment() {
                     if (it.data?.data != null) {
                         Toast.makeText(context, "Đăng thành công!", Toast.LENGTH_SHORT).show()
                         viewModel.getAllPosts()
+                        viewModel.getMyPost(username)
                         dismiss()
+                        setFragmentResult("bottom_sheet_upload", bundleOf("reload" to true))
                     } else {
                         Toast.makeText(context, "${it.data?.message}", Toast.LENGTH_SHORT).show()
                     }

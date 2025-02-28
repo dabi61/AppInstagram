@@ -26,10 +26,9 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 
 
-class MyPostFragment2 : Fragment() {
+class MyProfilePostFragment2 : Fragment() {
     // TODO: Rename and change types of parameters
     private lateinit var binding: FragmentMyPost2Binding
-    private var username: String? = null
     private lateinit var adapterMyPost: DetailPostAdapter
     private val viewModel: MainViewModel by activityViewModel()
 
@@ -42,9 +41,10 @@ class MyPostFragment2 : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMyPost2Binding.inflate(inflater, container, false)
-        val username = viewModel.profile.value?.data?.data?.username
         val _id = viewModel.profile.value?.data?.data?._id
+        val username = viewModel.profile.value?.data?.data?.username
         adapterMyPost = DetailPostAdapter(requireActivity(), username, object : PostClick {
+
             override fun onMorePostClick(post: HomeData.Post, view: View) {
                 val popup = PopupMenu(context, view)
                 popup.menuInflater.inflate(R.menu.more_menu, popup.menu)
@@ -56,16 +56,18 @@ class MyPostFragment2 : Fragment() {
                             true
                         }
                         R.id.action_delete -> {
-                            val sharePref = requireContext().getSharedPreferences("MyPrefs", MODE_PRIVATE)
-                            val _id = sharePref.getString("_id", "")
-                            val username = sharePref.getString("username", "")
                             val request = PostDeleteRequest(_id.toString(), post._id)
                             viewModel.deletePost(request)
                             viewModel.deletePost.observe(viewLifecycleOwner) {
-                                if (it.data?.status == true) {
-                                    Toast.makeText(requireContext(), "Xóa thành công", Toast.LENGTH_SHORT).show()
-                                    viewModel.getAllPosts()
-                                    viewModel.getMyPost(username.toString())
+                                when(it.status) {
+                                    DataStatus.Status.LOADING -> {}
+                                    DataStatus.Status.SUCCESS -> {
+                                        if (it.data?.status == true) {
+                                            Toast.makeText(requireContext(), "Xóa thành công", Toast.LENGTH_SHORT).show()
+                                            viewModel.getMyProfile(username.toString())
+                                        }
+                                    }
+                                    DataStatus.Status.ERROR -> {}
                                 }
                             }
                             true
@@ -77,7 +79,6 @@ class MyPostFragment2 : Fragment() {
             }
 
             override fun onLikeClick(post: HomeData.Post, status: LikeValue) {
-                Log.d("HomeFragment", "Dữ liệu mới nhận được: ${status.value}")
                 val request = LikePostRequest(_id.toString(), post._id, status.value)
                 viewModel.likePost(request)
                 viewModel.likePost.observe(viewLifecycleOwner) {
@@ -86,6 +87,7 @@ class MyPostFragment2 : Fragment() {
                         DataStatus.Status.SUCCESS -> {
                             if (it.data?.status == true) {
                                 Toast.makeText(context, "${it.data.message}", Toast.LENGTH_SHORT).show()
+                                viewModel.getAllPosts()
                             }
                         }
                         DataStatus.Status.ERROR -> {}
@@ -98,16 +100,18 @@ class MyPostFragment2 : Fragment() {
                 bottomSheet.show(childFragmentManager, "UserBottomSheet")
             }
 
+
+
             override fun onPostClick(post: HomeData.Post) {
-                TODO("Not yet implemented")
+
             }
         })
         setupRecyclerView()
-        viewModel.myPost.observe(viewLifecycleOwner) {
+        viewModel.profilePost.observe(viewLifecycleOwner) {
             Log.d("MyPostFragment2", "onCreateView: ${it.data}")
             adapterMyPost.submitList(it.data?.data?.data)
         }
-        binding.tvUsername.text = username
+        binding.tvUsername.text = viewModel.profile.value?.data?.data?.username
         binding.icBack.setOnClickListener{
             requireActivity().supportFragmentManager.popBackStack()
 
